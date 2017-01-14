@@ -6,6 +6,7 @@ php:
 services:
   - cassandra
 before_install:
+  - sudo apt-get install g++ make cmake libuv-dev libssl-dev libgmp-dev openssl libpcre3-dev
   - pecl install cassandra
   - phpenv config-rm xdebug.ini
   - phpenv config-add tests/config.ini
