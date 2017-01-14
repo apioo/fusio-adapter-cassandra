@@ -52,7 +52,7 @@ class CassandraTest extends \PHPUnit_Framework_TestCase
 
         $client = $connection->getConnection($config);
 
-        $this->assertInstanceOf(\Cassandra::class, $client);
+        $this->assertInstanceOf(\Cassandra\Session::class, $client);
     }
 
     public function testConfigure()
