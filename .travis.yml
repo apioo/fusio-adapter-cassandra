@@ -1,0 +1,15 @@
+language: php
+php:
+  - 5.6
+  - 7.0
+  - 7.1
+services:
+  - cassandra
+before_install:
+  - pecl install cassandra
+  - phpenv config-rm xdebug.ini
+  - phpenv config-add tests/config.ini
+install:
+  - composer install
+script:
+  - vendor/bin/phpunit
