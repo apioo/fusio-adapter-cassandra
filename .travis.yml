@@ -6,12 +6,13 @@ php:
 services:
   - cassandra
 before_install:
+  - phpenv config-rm xdebug.ini
   - sudo apt-add-repository ppa:linuxjedi/ppa -y
   - sudo apt-get update
   - sudo apt-get install -y libuv-dev libssl-dev
-  - pecl install cassandra
-  - phpenv config-rm xdebug.ini
-  - phpenv config-add tests/config.ini
+  - cd /tmp && git clone https://github.com/datastax/php-driver.git && cd php-driver && git submodule update --init
+  - cd ext && ./install.sh && cd "$TRAVIS_BUILD_DIR"
+  - echo "extension=cassandra.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
 install:
   - composer install
 script:
