@@ -21,8 +21,10 @@ env:
     # Add libuv source build for container based TravisCI
     - LIBUV_VERSION=1.8.0
     - LIBUV_ROOT_DIR=${CACHED_DEPENDENCIES_DIRECTORY}/libuv/${LIBUV_VERSION}
-    - PHP_DRIVER_BUILD_DIRECTORY=/tmp/php-driver/build
-    - CPP_DRIVER_SOURCE_DIRECTORY=${TRAVIS_BUILD_DIR}/lib/cpp-driver
+    - PHP_DRIVER_DIRECTORY=/tmp/php-driver
+    - PHP_DRIVER_BUILD_DIRECTORY=${PHP_DRIVER_DIRECTORY}/build
+    - PHP_DRIVER_EXT_DIRECTORY=${PHP_DRIVER_DIRECTORY}/ext
+    - CPP_DRIVER_SOURCE_DIRECTORY=${PHP_DRIVER_DIRECTORY}/lib/cpp-driver
     - CPP_DRIVER_BUILD_DIRECTORY=${PHP_DRIVER_BUILD_DIRECTORY}/cpp-driver
     - CPP_DRIVER_INSTALL_DIRECTORY=${CACHED_DEPENDENCIES_DIRECTORY}/cpp-driver
   matrix:
@@ -42,7 +44,7 @@ before_install:
     else echo "Using Cached libuv v${LIBUV_VERSION}. Dependency does not need to be re-compiled";
     fi
   ### Build and configure the PHP driver extension ###
-  - pushd /tmp && git clone https://github.com/datastax/php-driver.git && pushd php-driver && git checkout $PHP_CASSANDRA_DRIVER && git submodule update --init && popd && popd
+  - git clone https://github.com/datastax/php-driver.git ${PHP_DRIVER_DIRECTORY} && pushd ${PHP_DRIVER_DIRECTORY} && git checkout ${PHP_CASSANDRA_DRIVER} && git submodule update --init && popd
   - mkdir -p ${PHP_DRIVER_BUILD_DIRECTORY}
   # Determine the version number for the C/C++ driver dependency
   - export CPP_DRIVER_VERSION_MAJOR=$(grep CASS_VERSION_MAJOR ${CPP_DRIVER_SOURCE_DIRECTORY}/include/cassandra.h | sed 's/[^0-9]*//g')
@@ -63,10 +65,10 @@ before_install:
     else echo "Using Cached C/C++ driver v${CPP_DRIVER_VERSION}. Dependency does not need to be re-compiled";
     fi
   # PHPize the extension for configuration and building
-  - pushd /tmp/php-driver/ext && phpize && popd
+  - pushd ${PHP_DRIVER_EXT_DIRECTORY} && phpize && popd
   # Configure, build, and install the extension
   - pushd ${PHP_DRIVER_BUILD_DIRECTORY}
-  - LIBS="-lssl -lz -luv -lm -lstdc++" LDFLAGS="-L${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/lib -L${LIBUV_ROOT_DIR}/lib" ${TRAVIS_BUILD_DIR}/ext/configure --with-cassandra=${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION} --with-uv=${LIBUV_ROOT_DIR}
+  - LIBS="-lssl -lz -luv -lm -lstdc++" LDFLAGS="-L${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/lib -L${LIBUV_ROOT_DIR}/lib" ${PHP_DRIVER_EXT_DIRECTORY}/configure --with-cassandra=${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION} --with-uv=${LIBUV_ROOT_DIR}
   - make -j$(nproc) install
   - popd
   # Enable the extension
