@@ -1,18 +1,78 @@
 language: php
+sudo: false
+addons:
+  apt:
+    packages:
+      - libssl-dev
+cache:
+  ccache: true
+  directories:
+    - ${HOME}/dependencies
 php:
   - 5.6
   - 7.0
   - 7.1
 services:
   - cassandra
+env:
+  global:
+    # Indicate the cached dependencies directory
+    - CACHED_DEPENDENCIES_DIRECTORY=${HOME}/dependencies
+    # Add libuv source build for container based TravisCI
+    - LIBUV_VERSION=1.8.0
+    - LIBUV_ROOT_DIR=${CACHED_DEPENDENCIES_DIRECTORY}/libuv/${LIBUV_VERSION}
+    - PHP_DRIVER_BUILD_DIRECTORY=/tmp/php-driver/build
+    - CPP_DRIVER_SOURCE_DIRECTORY=${TRAVIS_BUILD_DIR}/lib/cpp-driver
+    - CPP_DRIVER_BUILD_DIRECTORY=${PHP_DRIVER_BUILD_DIRECTORY}/cpp-driver
+    - CPP_DRIVER_INSTALL_DIRECTORY=${CACHED_DEPENDENCIES_DIRECTORY}/cpp-driver
+  matrix:
+    - PHP_CASSANDRA_DRIVER=v1.2.2
 before_install:
-  - phpenv config-rm xdebug.ini
-  - sudo apt-add-repository ppa:linuxjedi/ppa -y
-  - sudo apt-get update
-  - sudo apt-get install -y libuv-dev libssl-dev
-  - cd /tmp && git clone https://github.com/datastax/php-driver.git && cd php-driver && git submodule update --init
-  - cd ext && ./install.sh && cd "$TRAVIS_BUILD_DIR"
+  # Configure, build, install (or used cached libuv)
+  - if [ ! -d "${LIBUV_ROOT_DIR}" ]; then
+      pushd /tmp;
+      wget -q http://dist.libuv.org/dist/v${LIBUV_VERSION}/libuv-v${LIBUV_VERSION}.tar.gz;
+      tar xzf libuv-v${LIBUV_VERSION}.tar.gz;
+      pushd /tmp/libuv-v${LIBUV_VERSION};
+      sh autogen.sh;
+      ./configure --prefix=${LIBUV_ROOT_DIR};
+      make -j$(nproc) install;
+      popd;
+      popd;
+    else echo "Using Cached libuv v${LIBUV_VERSION}. Dependency does not need to be re-compiled";
+    fi
+  ### Build and configure the PHP driver extension ###
+  - pushd /tmp && git clone https://github.com/datastax/php-driver.git && pushd php-driver && git checkout $PHP_CASSANDRA_DRIVER && git submodule update --init && popd && popd
+  - mkdir -p ${PHP_DRIVER_BUILD_DIRECTORY}
+  # Determine the version number for the C/C++ driver dependency
+  - export CPP_DRIVER_VERSION_MAJOR=$(grep CASS_VERSION_MAJOR ${CPP_DRIVER_SOURCE_DIRECTORY}/include/cassandra.h | sed 's/[^0-9]*//g')
+  - export CPP_DRIVER_VERSION_MINOR=$(grep CASS_VERSION_MINOR ${CPP_DRIVER_SOURCE_DIRECTORY}/include/cassandra.h | sed 's/[^0-9]*//g')
+  - export CPP_DRIVER_VERSION_PATCH=$(grep CASS_VERSION_PATCH ${CPP_DRIVER_SOURCE_DIRECTORY}/include/cassandra.h | sed 's/[^0-9]*//g')
+  - export CPP_DRIVER_VERSION=${CPP_DRIVER_VERSION_MAJOR}.${CPP_DRIVER_VERSION_MINOR}.${CPP_DRIVER_VERSION_PATCH}
+  # Build the C/C++ driver dependency (or used cached C/C++ driver)
+  - if [ ! -d "${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}" ]; then
+      mkdir -p ${CPP_DRIVER_BUILD_DIRECTORY};
+      pushd ${CPP_DRIVER_BUILD_DIRECTORY};
+      cmake -DCMAKE_CXX_FLAGS="-fPIC" -DCMAKE_INSTALL_PREFIX:PATH=${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION} -DCASS_BUILD_STATIC=ON -DCASS_BUILD_SHARED=OFF -DCMAKE_BUILD_TYPE=RELEASE -DCASS_USE_ZLIB=ON ${CPP_DRIVER_SOURCE_DIRECTORY};
+      make -j$(nproc) install;
+      pushd ${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/lib;
+      rm -f libcassandra.{dylib,so};
+      mv libcassandra_static.a libcassandra.a;
+      popd;
+      popd;
+    else echo "Using Cached C/C++ driver v${CPP_DRIVER_VERSION}. Dependency does not need to be re-compiled";
+    fi
+  # PHPize the extension for configuration and building
+  - pushd /tmp/php-driver/ext && phpize && popd
+  # Configure, build, and install the extension
+  - pushd ${PHP_DRIVER_BUILD_DIRECTORY}
+  - LIBS="-lssl -lz -luv -lm -lstdc++" LDFLAGS="-L${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/lib -L${LIBUV_ROOT_DIR}/lib" ${TRAVIS_BUILD_DIR}/ext/configure --with-cassandra=${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION} --with-uv=${LIBUV_ROOT_DIR}
+  - make -j$(nproc) install
+  - popd
+  # Enable the extension
   - echo "extension=cassandra.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
+  # remove xdebug
+  - phpenv config-rm xdebug.ini
 install:
   - composer install
 script:
