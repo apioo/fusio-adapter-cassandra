@@ -21,6 +21,8 @@
 
 namespace Fusio\Adapter\Cassandra\Connection;
 
+use Cassandra\SimpleStatement;
+use Fusio\Engine\Connection\PingableInterface;
 use Fusio\Engine\ConnectionInterface;
 use Fusio\Engine\Exception\ConfigurationException;
 use Fusio\Engine\Form\BuilderInterface;
@@ -34,7 +36,7 @@ use Fusio\Engine\ParametersInterface;
  * @license http://www.gnu.org/licenses/agpl-3.0
  * @link    http://fusio-project.org
  */
-class Cassandra implements ConnectionInterface
+class Cassandra implements ConnectionInterface, PingableInterface
 {
     public function getName()
     {
@@ -67,5 +69,19 @@ class Cassandra implements ConnectionInterface
         $builder->add($elementFactory->newInput('host', 'Host', 'text', 'Configures the initial endpoints. Note that the driver will automatically discover and connect to the rest of the cluster'));
         $builder->add($elementFactory->newInput('port', 'Port', 'number', 'Specify a different port to be used when connecting to the cluster'));
         $builder->add($elementFactory->newInput('keyspace', 'Keyspace', 'text', 'Optional keyspace name'));
+    }
+
+    public function ping($connection)
+    {
+        if ($connection instanceof \Cassandra\Session) {
+            try {
+                $connection->execute(new SimpleStatement('SELECT now() FROM system.local;'));
+
+                return true;
+            } catch (\Cassandra\Exception $e) {
+            }
+        }
+
+        return false;
     }
 }

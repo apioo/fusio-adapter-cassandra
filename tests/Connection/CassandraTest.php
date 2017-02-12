@@ -41,8 +41,8 @@ class CassandraTest extends \PHPUnit_Framework_TestCase
 
     public function testGetConnection()
     {
-        /** @var Cassandra $connection */
-        $connection = $this->getConnectionFactory()->factory(Cassandra::class);
+        /** @var Cassandra $connectionFactory */
+        $connectionFactory = $this->getConnectionFactory()->factory(Cassandra::class);
 
         $config = new Parameters([
             'host'     => '127.0.0.1',
@@ -50,9 +50,9 @@ class CassandraTest extends \PHPUnit_Framework_TestCase
             'keyspace' => '',
         ]);
 
-        $client = $connection->getConnection($config);
+        $connection = $connectionFactory->getConnection($config);
 
-        $this->assertInstanceOf(\Cassandra\Session::class, $client);
+        $this->assertInstanceOf(\Cassandra\Session::class, $connection);
     }
 
     public function testConfigure()
@@ -70,5 +70,21 @@ class CassandraTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(Input::class, $elements[0]);
         $this->assertInstanceOf(Input::class, $elements[1]);
         $this->assertInstanceOf(Input::class, $elements[2]);
+    }
+
+    public function testPing()
+    {
+        /** @var Cassandra $connectionFactory */
+        $connectionFactory = $this->getConnectionFactory()->factory(Cassandra::class);
+
+        $config = new Parameters([
+            'host'     => '127.0.0.1',
+            'port'     => '',
+            'keyspace' => '',
+        ]);
+
+        $connection = $connectionFactory->getConnection($config);
+
+        $this->assertTrue($connectionFactory->ping($connection));
     }
 }
