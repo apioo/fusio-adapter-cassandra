@@ -41,8 +41,8 @@ before_install:
     else echo "Using Cached libuv v${LIBUV_VERSION}. Dependency does not need to be re-compiled";
     fi
   ### Build and configure the PHP driver extension ###
-  - git clone https://github.com/datastax/php-driver.git ${PHP_DRIVER_DIRECTORY} && pushd ${PHP_DRIVER_DIRECTORY} && git checkout ${PHP_CASSANDRA_DRIVER} && git submodule update --init && popd
   - mkdir -p ${PHP_DRIVER_BUILD_DIRECTORY}
+  - git clone https://github.com/datastax/php-driver.git ${PHP_DRIVER_BUILD_DIRECTORY} && pushd ${PHP_DRIVER_BUILD_DIRECTORY} && git checkout ${PHP_CASSANDRA_DRIVER} && git submodule update --init && popd
   # Determine the version number for the C/C++ driver dependency
   - export CPP_DRIVER_VERSION_MAJOR=$(grep CASS_VERSION_MAJOR ${CPP_DRIVER_SOURCE_DIRECTORY}/include/cassandra.h | sed 's/[^0-9]*//g')
   - export CPP_DRIVER_VERSION_MINOR=$(grep CASS_VERSION_MINOR ${CPP_DRIVER_SOURCE_DIRECTORY}/include/cassandra.h | sed 's/[^0-9]*//g')
