@@ -23,7 +23,7 @@ env:
     - PHP_DRIVER_DIRECTORY=/tmp/php-driver
     - PHP_DRIVER_BUILD_DIRECTORY=${PHP_DRIVER_DIRECTORY}/build
     - PHP_DRIVER_EXT_DIRECTORY=${PHP_DRIVER_DIRECTORY}/ext
-    - CPP_DRIVER_SOURCE_DIRECTORY=${TRAVIS_BUILD_DIR}/lib/cpp-driver
+    - CPP_DRIVER_SOURCE_DIRECTORY=${PHP_DRIVER_DIRECTORY}/lib/cpp-driver
     - CPP_DRIVER_BUILD_DIRECTORY=${PHP_DRIVER_BUILD_DIRECTORY}/cpp-driver
     - CPP_DRIVER_INSTALL_DIRECTORY=${CACHED_DEPENDENCIES_DIRECTORY}/cpp-driver
   matrix:
@@ -68,7 +68,7 @@ before_install:
   - pushd ${PHP_DRIVER_EXT_DIRECTORY} && phpize && popd
   # Configure, build, and install the extension
   - pushd ${PHP_DRIVER_BUILD_DIRECTORY}
-  - LIBS="-lssl -lz -luv -lm -lstdc++" LDFLAGS="-L${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/${CPP_DRIVER_VERSION_SHA}/lib -L${LIBUV_ROOT_DIR}/lib" ${TRAVIS_BUILD_DIR}/ext/configure --with-cassandra=${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/${CPP_DRIVER_VERSION_SHA} --with-uv=${LIBUV_ROOT_DIR}
+  - LIBS="-lssl -lz -luv -lm -lstdc++" LDFLAGS="-L${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/${CPP_DRIVER_VERSION_SHA}/lib -L${LIBUV_ROOT_DIR}/lib" ${PHP_DRIVER_DIRECTORY}/ext/configure --with-cassandra=${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/${CPP_DRIVER_VERSION_SHA} --with-uv=${LIBUV_ROOT_DIR}
   - make -j$(nproc) install
   - popd
   # Enable the extension
