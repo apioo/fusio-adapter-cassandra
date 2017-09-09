@@ -50,7 +50,7 @@ before_install:
   - export CPP_DRIVER_VERSION_MINOR=$(grep CASS_VERSION_MINOR ${CPP_DRIVER_SOURCE_DIRECTORY}/include/cassandra.h | sed 's/[^0-9]*//g')
   - export CPP_DRIVER_VERSION_PATCH=$(grep CASS_VERSION_PATCH ${CPP_DRIVER_SOURCE_DIRECTORY}/include/cassandra.h | sed 's/[^0-9]*//g')
   - export CPP_DRIVER_VERSION=${CPP_DRIVER_VERSION_MAJOR}.${CPP_DRIVER_VERSION_MINOR}.${CPP_DRIVER_VERSION_PATCH}
-  - pushd lib/cpp-driver; export CPP_DRIVER_VERSION_SHA=$(git rev-parse --short HEAD); popd
+  - pushd ${PHP_DRIVER_DIRECTORY}/lib/cpp-driver; export CPP_DRIVER_VERSION_SHA=$(git rev-parse --short HEAD); popd
   # Build the C/C++ driver dependency (or used cached C/C++ driver)
   - if [ ! -d "${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/${CPP_DRIVER_VERSION_SHA}" ]; then
       mkdir -p ${CPP_DRIVER_BUILD_DIRECTORY};
