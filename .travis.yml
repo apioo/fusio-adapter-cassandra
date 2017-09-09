@@ -20,7 +20,9 @@ env:
     # Add libuv source build for container based TravisCI
     - LIBUV_VERSION=1.13.1
     - LIBUV_ROOT_DIR=${CACHED_DEPENDENCIES_DIRECTORY}/libuv/${LIBUV_VERSION}
-    - PHP_DRIVER_BUILD_DIRECTORY=/tmp/php-driver/build
+    - PHP_DRIVER_DIRECTORY=/tmp/php-driver
+    - PHP_DRIVER_BUILD_DIRECTORY=${PHP_DRIVER_DIRECTORY}/build
+    - PHP_DRIVER_EXT_DIRECTORY=${PHP_DRIVER_DIRECTORY}/ext
     - CPP_DRIVER_SOURCE_DIRECTORY=${TRAVIS_BUILD_DIR}/lib/cpp-driver
     - CPP_DRIVER_BUILD_DIRECTORY=${PHP_DRIVER_BUILD_DIRECTORY}/cpp-driver
     - CPP_DRIVER_INSTALL_DIRECTORY=${CACHED_DEPENDENCIES_DIRECTORY}/cpp-driver
@@ -41,8 +43,8 @@ before_install:
     else echo "Using Cached libuv v${LIBUV_VERSION}. Dependency does not need to be re-compiled";
     fi
   ### Build and configure the PHP driver extension ###
+  - git clone https://github.com/datastax/php-driver.git ${PHP_DRIVER_DIRECTORY} && pushd ${PHP_DRIVER_DIRECTORY} && git checkout ${PHP_CASSANDRA_DRIVER} && git submodule update --init && popd
   - mkdir -p ${PHP_DRIVER_BUILD_DIRECTORY}
-  - git clone https://github.com/datastax/php-driver.git ${PHP_DRIVER_BUILD_DIRECTORY} && pushd ${PHP_DRIVER_BUILD_DIRECTORY} && git checkout ${PHP_CASSANDRA_DRIVER} && git submodule update --init && popd
   # Determine the version number for the C/C++ driver dependency
   - export CPP_DRIVER_VERSION_MAJOR=$(grep CASS_VERSION_MAJOR ${CPP_DRIVER_SOURCE_DIRECTORY}/include/cassandra.h | sed 's/[^0-9]*//g')
   - export CPP_DRIVER_VERSION_MINOR=$(grep CASS_VERSION_MINOR ${CPP_DRIVER_SOURCE_DIRECTORY}/include/cassandra.h | sed 's/[^0-9]*//g')
@@ -63,7 +65,7 @@ before_install:
     else echo "Using Cached C/C++ driver v${CPP_DRIVER_VERSION}-${CPP_DRIVER_VERSION_SHA}. Dependency does not need to be re-compiled";
     fi
   # PHPize the extension for configuration and building
-  - pushd ${TRAVIS_BUILD_DIR}/ext && phpize && popd
+  - pushd ${PHP_DRIVER_EXT_DIRECTORY} && phpize && popd
   # Configure, build, and install the extension
   - pushd ${PHP_DRIVER_BUILD_DIRECTORY}
   - LIBS="-lssl -lz -luv -lm -lstdc++" LDFLAGS="-L${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/${CPP_DRIVER_VERSION_SHA}/lib -L${LIBUV_ROOT_DIR}/lib" ${TRAVIS_BUILD_DIR}/ext/configure --with-cassandra=${CPP_DRIVER_INSTALL_DIRECTORY}/${CPP_DRIVER_VERSION}/${CPP_DRIVER_VERSION_SHA} --with-uv=${LIBUV_ROOT_DIR}
