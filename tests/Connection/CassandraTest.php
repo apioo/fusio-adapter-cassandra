@@ -45,7 +45,7 @@ class CassandraTest extends \PHPUnit_Framework_TestCase
         $connectionFactory = $this->getConnectionFactory()->factory(Cassandra::class);
 
         $config = new Parameters([
-            'host'     => '127.0.0.1',
+            'host'     => ['127.0.0.1'],
             'port'     => '',
             'keyspace' => '',
         ]);
@@ -78,7 +78,7 @@ class CassandraTest extends \PHPUnit_Framework_TestCase
         $connectionFactory = $this->getConnectionFactory()->factory(Cassandra::class);
 
         $config = new Parameters([
-            'host'     => '127.0.0.1',
+            'host'     => ['127.0.0.1'],
             'port'     => '',
             'keyspace' => '',
         ]);
