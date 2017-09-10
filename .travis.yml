@@ -91,4 +91,3 @@ install:
   - composer install
 script:
   - vendor/bin/phpunit
-  - sudo /etc/init.d/cassandra status
