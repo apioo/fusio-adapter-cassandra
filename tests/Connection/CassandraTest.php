@@ -25,6 +25,7 @@ use Fusio\Adapter\Cassandra\Connection\Cassandra;
 use Fusio\Engine\Form\Builder;
 use Fusio\Engine\Form\Container;
 use Fusio\Engine\Form\Element\Input;
+use Fusio\Engine\Form\Element\Tag;
 use Fusio\Engine\Parameters;
 use Fusio\Engine\Test\EngineTestCaseTrait;
 
@@ -67,7 +68,7 @@ class CassandraTest extends \PHPUnit_Framework_TestCase
 
         $elements = $builder->getForm()->getProperty('element');
         $this->assertEquals(3, count($elements));
-        $this->assertInstanceOf(Input::class, $elements[0]);
+        $this->assertInstanceOf(Tag::class, $elements[0]);
         $this->assertInstanceOf(Input::class, $elements[1]);
         $this->assertInstanceOf(Input::class, $elements[2]);
     }
