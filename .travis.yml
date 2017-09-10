@@ -4,6 +4,7 @@ addons:
   apt:
     packages:
       - libssl-dev
+      - oracle-java8-installer
 cache:
   ccache: true
   directories:
@@ -75,6 +76,17 @@ before_install:
   - echo "extension=cassandra.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
   # remove xdebug
   - phpenv config-rm xdebug.ini
+before_script:
+  # Switch to Java 8 for non-java projects
+  - if [ $(uname -a | grep x86_64 >/dev/null) ]; then
+      ARCH_SUFFIX=amd64;
+    else ARCH_SUFFIX=i386;
+    fi
+  - if [ -d "/usr/lib/jvm/java-8-oracle-$ARCH_SUFFIX" ]; then
+      export JAVA_HOME="/usr/lib/jvm/java-8-oracle-$ARCH_SUFFIX";
+    else export JAVA_HOME="/usr/lib/jvm/java-8-oracle";
+    fi
+  - export PATH=${JAVA_HOME}/bin:${PATH}
 install:
   - composer install
   - /etc/init.d/cassandra status
