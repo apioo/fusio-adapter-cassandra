@@ -50,6 +50,7 @@ class Cassandra implements ConnectionInterface, PingableInterface
     public function getConnection(ParametersInterface $config)
     {
         if (class_exists('Cassandra')) {
+            /** @var \Cassandra\Cluster\Builder $builder */
             $builder = \Cassandra::cluster();
             $builder->withContactPoints($config->get('host'));
 
@@ -58,7 +59,14 @@ class Cassandra implements ConnectionInterface, PingableInterface
                 $builder->withPort($port);
             }
 
-            return $builder->build()->connect($config->get('keyspace') ?: null);
+            $cluster = $builder->build();
+
+            $keyspace = $config->get('keyspace');
+            if (!empty($keyspace)) {
+                return $cluster->connect($keyspace);
+            } else {
+                return $cluster->connect();
+            }
         } else {
             throw new ConfigurationException('PHP extension "cassandra" is not installed');
         }
