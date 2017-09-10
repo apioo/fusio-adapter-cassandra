@@ -52,7 +52,12 @@ class Cassandra implements ConnectionInterface, PingableInterface
         if (class_exists('Cassandra')) {
             /** @var \Cassandra\Cluster\Builder $builder */
             $builder = \Cassandra::cluster();
-            $builder->withContactPoints($config->get('host'));
+
+            $host = $config->get('host');
+            if (!empty($host)) {
+                $hosts = explode(',', $host);
+                $builder->withContactPoints(...$hosts);
+            }
 
             $port = $config->get('port');
             if (!empty($port)) {
