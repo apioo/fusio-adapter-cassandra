@@ -27,7 +27,7 @@ env:
     - CPP_DRIVER_BUILD_DIRECTORY=${PHP_DRIVER_BUILD_DIRECTORY}/cpp-driver
     - CPP_DRIVER_INSTALL_DIRECTORY=${CACHED_DEPENDENCIES_DIRECTORY}/cpp-driver
   matrix:
-    - PHP_CASSANDRA_DRIVER=v1.3.2
+    - PHP_CASSANDRA_DRIVER=v1.2.2
 before_install:
   # Configure, build, install (or used cached libuv)
   - if [ ! -d "${LIBUV_ROOT_DIR}" ]; then
