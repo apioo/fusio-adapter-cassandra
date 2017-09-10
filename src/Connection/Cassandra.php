@@ -67,16 +67,10 @@ class Cassandra implements ConnectionInterface, PingableInterface
             $cluster  = $builder->build();
             $keyspace = $config->get('keyspace');
 
-            for ($retries = 1; $retries <= 10; $retries++) {
-                try {
-                    if (!empty($keyspace)) {
-                        return $cluster->connect($keyspace);
-                    } else {
-                        return $cluster->connect();
-                    }
-                } catch (\Cassandra\Exception\RuntimeException $e) {
-                    sleep($retries * 0.4);
-                }
+            if (!empty($keyspace)) {
+                return $cluster->connect($keyspace);
+            } else {
+                return $cluster->connect();
             }
         } else {
             throw new ConfigurationException('PHP extension "cassandra" is not installed');
