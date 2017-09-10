@@ -89,6 +89,6 @@ before_script:
   - export PATH=${JAVA_HOME}/bin:${PATH}
 install:
   - composer install
-  - /etc/init.d/cassandra status
 script:
   - vendor/bin/phpunit
+  - /etc/init.d/cassandra status
