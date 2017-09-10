@@ -1,5 +1,5 @@
 language: php
-sudo: false
+sudo: true
 addons:
   apt:
     packages:
@@ -91,4 +91,4 @@ install:
   - composer install
 script:
   - vendor/bin/phpunit
-  - /etc/init.d/cassandra status
+  - sudo /etc/init.d/cassandra status
