@@ -91,4 +91,5 @@ before_script:
 install:
   - composer install
 script:
+  - while ! nc -z 127.0.0.1 9042; do sleep 1; done
   - vendor/bin/phpunit
