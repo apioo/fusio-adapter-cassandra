@@ -47,7 +47,7 @@ class CassandraTest extends \PHPUnit_Framework_TestCase
 
         $config = new Parameters([
             'host'     => ['127.0.0.1'],
-            'port'     => '',
+            'port'     => '9042',
             'keyspace' => '',
         ]);
 
@@ -80,7 +80,7 @@ class CassandraTest extends \PHPUnit_Framework_TestCase
 
         $config = new Parameters([
             'host'     => ['127.0.0.1'],
-            'port'     => '',
+            'port'     => '9042',
             'keyspace' => '',
         ]);
 
