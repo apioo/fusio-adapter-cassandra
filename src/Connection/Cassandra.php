@@ -58,7 +58,7 @@ class Cassandra implements ConnectionInterface, PingableInterface
                 $builder->withContactPoints(...$host);
             }
 
-            $port = $config->get('port');
+            $port = (int) $config->get('port');
             if (!empty($port)) {
                 $builder->withPort($port);
             }
