@@ -28,6 +28,7 @@ use Fusio\Engine\Form\Element\Input;
 use Fusio\Engine\Form\Element\Tag;
 use Fusio\Engine\Parameters;
 use Fusio\Engine\Test\EngineTestCaseTrait;
+use PHPUnit\Framework\TestCase;
 
 /**
  * CassandraTest
@@ -36,7 +37,7 @@ use Fusio\Engine\Test\EngineTestCaseTrait;
  * @license http://www.gnu.org/licenses/agpl-3.0
  * @link    http://fusio-project.org
  */
-class CassandraTest extends \PHPUnit_Framework_TestCase
+class CassandraTest extends TestCase
 {
     use EngineTestCaseTrait;
 
