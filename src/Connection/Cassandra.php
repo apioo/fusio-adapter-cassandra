@@ -63,6 +63,12 @@ class Cassandra implements ConnectionInterface, PingableInterface
                 $builder->withPort($port);
             }
 
+            $username =  $config->get('username');
+            $password =  $config->get('password');
+            if (!empty($username) && !empty($password)) {
+                $builder->withCredentials($username,$password);
+            }
+
             $cluster  = $builder->build();
             $keyspace = $config->get('keyspace');
 
@@ -81,6 +87,8 @@ class Cassandra implements ConnectionInterface, PingableInterface
         $builder->add($elementFactory->newTag('host', 'Host', 'text', 'Configures the initial endpoints. Note that the driver will automatically discover and connect to the rest of the cluster'));
         $builder->add($elementFactory->newInput('port', 'Port', 'number', 'Specify a different port to be used when connecting to the cluster'));
         $builder->add($elementFactory->newInput('keyspace', 'Keyspace', 'text', 'Optional keyspace name'));
+        $builder->add($elementFactory->newInput('username', 'Username', 'text', 'Optional username'));
+        $builder->add($elementFactory->newInput('password', 'Password', 'password', 'Optional password'));
     }
 
     public function ping($connection)
