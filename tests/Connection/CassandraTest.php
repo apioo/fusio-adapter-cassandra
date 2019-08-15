@@ -57,23 +57,6 @@ class CassandraTest extends TestCase
         $this->assertInstanceOf(\Cassandra\Session::class, $connection);
     }
 
-    public function testConfigure()
-    {
-        $connection = $this->getConnectionFactory()->factory(Cassandra::class);
-        $builder    = new Builder();
-        $factory    = $this->getFormElementFactory();
-
-        $connection->configure($builder, $factory);
-
-        $this->assertInstanceOf(Container::class, $builder->getForm());
-
-        $elements = $builder->getForm()->getProperty('element');
-        $this->assertEquals(3, count($elements));
-        $this->assertInstanceOf(Tag::class, $elements[0]);
-        $this->assertInstanceOf(Input::class, $elements[1]);
-        $this->assertInstanceOf(Input::class, $elements[2]);
-    }
-
     public function testPing()
     {
         /** @var Cassandra $connectionFactory */
