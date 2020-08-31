@@ -11,7 +11,6 @@ cache:
   directories:
     - ${HOME}/dependencies
 php:
-  - '7.1'
   - '7.2'
 services:
   - cassandra
