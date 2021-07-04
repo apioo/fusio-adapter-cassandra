@@ -9,4 +9,7 @@ inside your Fusio project:
     composer require fusio/adapter-cassandra
     php bin/fusio system:register Fusio\Adapter\Cassandra\Adapter
 
+NOTICE: Currently the cassandra extension supports only older PHP versions, so it
+is not possible to use this extension until there is a newer version.
+
 [Fusio]: http://fusio-project.org/
