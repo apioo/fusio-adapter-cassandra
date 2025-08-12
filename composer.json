@@ -2,7 +2,6 @@
   "name": "fusio/adapter-cassandra",
   "description": "Provides a connection to work with a cassandra database",
   "homepage": "https://www.fusio-project.org",
-  "keywords": ["fusio-adapter"],
   "license": "AGPL-3.0",
   "authors": [
     {
